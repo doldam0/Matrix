@@ -51,8 +51,12 @@ public:
 			i++;
 		}
 	}
+	
+	const Matrix<M, N, T> operator+() const noexcept;
+	const Matrix<M, N, T> operator-() const noexcept;
 
-	const Matrix<M, N, T> operator+(const Matrix<M, N, T> &target) const;
+	const Matrix<M, N, T> operator+(const Matrix<M, N, T> &target) const noexcept;
+	const Matrix<M, N, T> operator-(const Matrix<M, N, T> &target) const noexcept;
 };
 
 template <unsigned int S, typename T>
@@ -102,11 +106,31 @@ public:
 		}
 	}
 
-	const Matrix<S, S, T> operator+(const Matrix<S, S, T> &target) const;
+	const Matrix<S, S, T> operator+() const noexcept;
+	const Matrix<S, S, T> operator-() const noexcept;
+
+	const Matrix<S, S, T> operator+(const Matrix<S, S, T> &target) const noexcept;
+	const Matrix<S, S, T> operator-(const Matrix<S, S, T> &target) const noexcept;
 };
 
 template <unsigned int M, unsigned int N, typename T>
-const Matrix<M, N, T> Matrix<M, N, T>::operator+(const Matrix<M, N, T> &target) const {
+const Matrix<M, N, T> Matrix<M, N, T>::operator+() const noexcept {
+	return *this;
+}
+
+template <unsigned int M, unsigned int N, typename T>
+const Matrix<M, N, T> Matrix<M, N, T>::operator-() const noexcept {
+	Matrix<M, N, T> result;
+	for (int i = 0; i < M; i++) {
+		for (int j = 0; j < N; j++) {
+			result.mat[i][j] = -mat[i][j];
+		}
+	}
+	return result;
+}
+
+template <unsigned int M, unsigned int N, typename T>
+const Matrix<M, N, T> Matrix<M, N, T>::operator+(const Matrix<M, N, T> &target) const noexcept {
 	Matrix<M, N, T> result;
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
@@ -114,6 +138,11 @@ const Matrix<M, N, T> Matrix<M, N, T>::operator+(const Matrix<M, N, T> &target) 
 		}
 	}
 	return result;
+}
+
+template <unsigned int M, unsigned int N, typename T>
+const Matrix<M, N, T> Matrix<M, N, T>::operator-(const Matrix<M, N, T> &target) const noexcept {
+	return *this + (-target);
 }
 
 #endif
