@@ -16,6 +16,4 @@ int main() {
 		{ 5, 2 },
 		{ 3, 3 }
 	};
-
-	auto result = mat2 + mat3;
 }
