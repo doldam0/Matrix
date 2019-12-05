@@ -5,15 +5,15 @@
 #include <stdexcept>
 #include <string>
 
-template <unsigned int M, unsigned int N, typename T = float>
+template <unsigned int M, unsigned int N, typename Type = float>
 class Matrix {
-	T mat[M][N];
+	Type mat[M][N];
 
 public:
 	constexpr Matrix() noexcept : mat{ 0 } { }
 	
 	template <unsigned int U, unsigned int V>
-	constexpr Matrix(const T (&arr)[M][N]) noexcept {
+	constexpr Matrix(const Type (&arr)[M][N]) noexcept {
 		static_assert(U <= M && V <= N, "Initializer list size must be smaller than matrix size");
 		for (int i = 0; i < U; i++) {
 			for (int j = 0; j < V; j++) {
@@ -22,7 +22,7 @@ public:
 		}
 	}
 
-	constexpr Matrix(const std::initializer_list<T> &list) {
+	constexpr Matrix(const std::initializer_list<Type> &list) {
 		if (list.size() > M * N)
 			throw std::out_of_range("Initializer list size must be smaller than matrix size");
 
@@ -36,7 +36,7 @@ public:
 		}
 	}
 
-	constexpr Matrix(const std::initializer_list< std::initializer_list<T> > &list) {
+	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list) {
 		if (list.size() > M)
 			throw std::out_of_range("Initializer list size must be smaller than matrix size");
 
@@ -52,21 +52,21 @@ public:
 		}
 	}
 
-	const T operator()(const int i, const int j) const noexcept;
-	const T& operator()(const int i, const int j) noexcept;
+	const Type operator()(const int i, const int j) const noexcept;
+	const Type& operator()(const int i, const int j) noexcept;
 
-	const Matrix<N, M, T> T() const noexcept;
+	const Matrix<N, M, Type> T() const noexcept;
 };
 
-template <unsigned int S, typename T>
-class Matrix<S, S, T> {
-	T mat[S][S];
+template <unsigned int S, typename Type>
+class Matrix<S, S, Type> {
+	Type mat[S][S];
 
 public:
 	constexpr Matrix() noexcept : mat{ 0 } { }
 	
 	template <unsigned int U, unsigned int V>
-	constexpr Matrix(const T (&arr)[U][V]) noexcept {
+	constexpr Matrix(const Type (&arr)[U][V]) noexcept {
 		static_assert(U <= S && V <= S, "Initializer list size must be smaller than matrix size");
 		for (int i = 0; i < U; i++) {
 			for (int j = 0; j < V; j++) {
@@ -75,7 +75,7 @@ public:
 		}
 	}
 
-	constexpr Matrix(const std::initializer_list<T> &list) {
+	constexpr Matrix(const std::initializer_list<Type> &list) {
 		if (list.size() > S * S)
 			throw std::out_of_range("Initializer list size must be smaller than matrix size");
 
@@ -89,7 +89,7 @@ public:
 		}
 	}
 
-	constexpr Matrix(const std::initializer_list< std::initializer_list<T> > &list) {
+	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list) {
 		if (list.size() > S)
 			throw std::out_of_range("Initializer list size must be smaller than matrix size");
 
@@ -105,30 +105,30 @@ public:
 		}
 	}
 
-	const T operator()(const int i, const int j) const noexcept;
-	const T& operator()(const int i, const int j) noexcept;
+	const Type operator()(const int i, const int j) const noexcept;
+	Type& operator()(const int i, const int j) noexcept;
 
-	const Matrix<S, S, T> T() const noexcept;
+	const Matrix<S, S, Type> T() const noexcept;
 };
 
-template <unsigned int M, unsigned int N, typename T>
-const T Matrix<M, N, T>::operator()(const int i, const int j) const noexcept {
+template <unsigned int M, unsigned int N, typename Type>
+const Type Matrix<M, N, Type>::operator()(const int i, const int j) const noexcept {
 	return mat[i][j];
 }
 
-template <unsigned int M, unsigned int N, typename T>
-const T& Matrix<M, N, T>::operator()(const int i, const int j) noexcept {
+template <unsigned int M, unsigned int N, typename Type>
+const Type& Matrix<M, N, Type>::operator()(const int i, const int j) noexcept {
 	return mat[i][j];
 }
 
-template <unsigned int M, unsigned int N, typename T>
-const Matrix<M, N, T> operator+(const Matrix<M, N, T> &target) noexcept {
+template <unsigned int M, unsigned int N, typename Type>
+const Matrix<M, N, Type> operator+(const Matrix<M, N, Type> &target) noexcept {
 	return target;
 }
 
-template <unsigned int M, unsigned int N, typename T>
-const Matrix<M, N, T> operator-(const Matrix<M, N, T> &target) noexcept {
-	Matrix<M, N, T> result;
+template <unsigned int M, unsigned int N, typename Type>
+const Matrix<M, N, Type> operator-(const Matrix<M, N, Type> &target) noexcept {
+	Matrix<M, N, Type> result;
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
 			result(i, j) = -target(i, j);
@@ -137,9 +137,9 @@ const Matrix<M, N, T> operator-(const Matrix<M, N, T> &target) noexcept {
 	return result;
 }
 
-template <unsigned int M, unsigned int N, typename T>
-const Matrix<M, N, T> operator+(const Matrix<M, N, T> &m1, const Matrix<M, N, T> &m2) noexcept {
-	Matrix<M, N, T> result;
+template <unsigned int M, unsigned int N, typename Type>
+const Matrix<M, N, Type> operator+(const Matrix<M, N, Type> &m1, const Matrix<M, N, Type> &m2) noexcept {
+	Matrix<M, N, Type> result;
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
 			result(i, j) = m1(i, j) + m2(i, j);
@@ -148,14 +148,14 @@ const Matrix<M, N, T> operator+(const Matrix<M, N, T> &m1, const Matrix<M, N, T>
 	return result;
 }
 
-template <unsigned int M, unsigned int N, typename T>
-const Matrix<M, N, T> operator-(const Matrix<M, N, T> &m1, const Matrix<M, N, T> &m2) noexcept {
+template <unsigned int M, unsigned int N, typename Type>
+const Matrix<M, N, Type> operator-(const Matrix<M, N, Type> &m1, const Matrix<M, N, Type> &m2) noexcept {
 	return m1 + (-m2);
 }
 
-template <unsigned int M, unsigned int N, typename T>
-const Matrix<M, N, T> operator*(const Matrix<M, N, T> &target, const int mul) noexcept {
-	Matrix<M, N, T> result;
+template <unsigned int M, unsigned int N, typename Type>
+const Matrix<M, N, Type> operator*(const Matrix<M, N, Type> &target, const int mul) noexcept {
+	Matrix<M, N, Type> result;
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
 			result(i, j) = target(i, j) * target;
@@ -164,14 +164,14 @@ const Matrix<M, N, T> operator*(const Matrix<M, N, T> &target, const int mul) no
 	return result;
 }
 
-template <unsigned int M, unsigned int N, typename T>
-const Matrix<M, N, T> operator*(const int mul, const Matrix<M, N, T> &target) noexcept {
+template <unsigned int M, unsigned int N, typename Type>
+const Matrix<M, N, Type> operator*(const int mul, const Matrix<M, N, Type> &target) noexcept {
 	return target * mul;
 }
 
-template <unsigned int M, unsigned int N, unsigned int P, typename T>
-const Matrix<M, P, T> operator*(const Matrix<M, N, T> &m1, const Matrix<N, P, T> &m2) noexcept {
-	Matrix<M, P, T> result;
+template <unsigned int M, unsigned int N, unsigned int P, typename Type>
+const Matrix<M, P, Type> operator*(const Matrix<M, N, Type> &m1, const Matrix<N, P, Type> &m2) noexcept {
+	Matrix<M, P, Type> result;
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < P; j++) {
 			for (int k = 0; k < N; k++) {
@@ -182,9 +182,9 @@ const Matrix<M, P, T> operator*(const Matrix<M, N, T> &m1, const Matrix<N, P, T>
 	return result;
 }
 
-template <unsigned int M, unsigned int N, typename T>
-cosnt Matrix<N, M, T> Matrix<M, N, T>::T() const noexcept {
-	Matrix<N, M, T> result;
+template <unsigned int M, unsigned int N, typename Type>
+const Matrix<N, M, Type> Matrix<M, N, Type>::T() const noexcept {
+	Matrix<N, M, Type> result;
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
 			result(j, i) = (*this)(i, j);
