@@ -12,47 +12,10 @@ class Matrix {
 	Type mat[M][N];
 
 public:
-	constexpr Matrix() noexcept : mat{ 0 } { }
-	
-	template <size_m U, size_m V>
-	constexpr Matrix(const Type (&arr)[M][N]) noexcept {
-		static_assert(U <= M && V <= N, "Initializer list size must be smaller than matrix size");
-		for (int i = 0; i < U; i++) {
-			for (int j = 0; j < V; j++) {
-				(*this)(i, j) = arr[i][j];
-			}
-		}
-	}
-
-	constexpr Matrix(const std::initializer_list<Type> &list) {
-		if (list.size() > M * N)
-			throw std::out_of_range("Initializer list size must be smaller than matrix size");
-
-		int i = 0, j = 0;
-		for (const auto &element : list) {
-			(*this)(i, j++) = element;
-			if (j >= N) {
-				j = 0;
-				i++;
-			}
-		}
-	}
-
-	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list) {
-		if (list.size() > M)
-			throw std::out_of_range("Initializer list size must be smaller than matrix size");
-
-		int i = 0, j = 0;
-		for (const auto &inner_list : list) {
-			if (inner_list.size() > N)
-				throw std::out_of_range("Initializer list size must be smaller tham matrix size");
-
-			for (const auto &element : inner_list) {
-				(*this)(i, j++) = element;
-			}
-			i++;
-		}
-	}
+	constexpr Matrix() noexcept;	
+	template <size_m U, size_m V> constexpr Matrix(const Type (&arr)[M][N]) noexcept;
+	constexpr Matrix(const std::initializer_list<Type> &list);
+	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list);
 
 	const Type operator()(const size_m i, const size_m j) const noexcept;
 	Type& operator()(const size_m i, const size_m j) noexcept;
@@ -65,47 +28,10 @@ class Matrix<S, S, Type> {
 	Type mat[S][S];
 
 public:
-	constexpr Matrix() noexcept : mat{ 0 } { }
-	
-	template <size_m U, size_m V>
-	constexpr Matrix(const Type (&arr)[U][V]) noexcept {
-		static_assert(U <= S && V <= S, "Initializer list size must be smaller than matrix size");
-		for (int i = 0; i < U; i++) {
-			for (int j = 0; j < V; j++) {
-				(*this)(i, j) = arr[i][j];
-			}
-		}
-	}
-
-	constexpr Matrix(const std::initializer_list<Type> &list) {
-		if (list.size() > S * S)
-			throw std::out_of_range("Initializer list size must be smaller than matrix size");
-
-		int i = 0, j = 0;
-		for (const auto &element : list) {
-			(*this)(i, j++) = element;
-			if (j >= S) {
-				j = 0;
-				i++;
-			}
-		}
-	}
-
-	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list) {
-		if (list.size() > S)
-			throw std::out_of_range("Initializer list size must be smaller than matrix size");
-
-		int i = 0, j = 0;
-		for (const auto &inner_list : list) {
-			if (inner_list.size() > S)
-				throw std::out_of_range("Initializer list size must be smaller tham matrix size");
-
-			for (const auto &element : inner_list) {
-				(*this)(i, j++) = element;
-			}
-			i++;
-		}
-	}
+	constexpr Matrix() noexcept;
+	template <size_m U, size_m V> constexpr Matrix(const Type (&arr)[U][V]) noexcept;
+	constexpr Matrix(const std::initializer_list<Type> &list);
+	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list);
 
 	const Type operator()(const size_m i, const size_m j) const noexcept;
 	Type& operator()(const size_m i, const size_m j) noexcept;
@@ -126,6 +52,97 @@ template <size_m M, size_m N, typename Type>
 Type& Matrix<M, N, Type>::operator()(const size_m i, const size_m j) noexcept {
 	static_assert(i < M && j < N, "access error");
 	return mat[i][j];
+}
+
+template <size_m M, size_m N, typename Type>
+constexpr Matrix<M, N, Type>::Matrix() noexcept : mat{ 0 } { }
+
+template <size_m M, size_m N, typename Type> template <size_m U, size_m V>
+constexpr Matrix<M, N, Type>::Matrix(const Type (&arr)[M][N]) noexcept {
+	static_assert(U <= M && V <= N, "Initializer list size must be smaller than matrix size");
+
+	for (int i = 0; i < U; i++) {
+		for (int j = 0; j < V; j++) {
+			mat[i][j] = arr[i][j];
+		}
+	}
+}
+
+template <size_m M, size_m N, typename Type>
+constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list<Type> &list) {
+	if (list.size() > M * N)
+		throw std::out_of_range("Initializer list size must be smaller than matrix size");
+
+	int i = 0, j = 0;
+	for (const auto &element : list) {
+		mat[i][j++] = element;
+		if (j >= N) {
+			j = 0;
+			i++;
+		}
+	}
+}
+
+template <size_m M, size_m N, typename Type>
+constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list< std::initializer_list<Type> > &list) {
+	if (list.size() > M)
+		throw std::out_of_range("Initializer list size must be smaller than matrix size");
+
+	int i = 0, j = 0;
+	for (const auto &inner_list : list) {
+		if (inner_list.size() > N)
+			throw std::out_of_range("Initializer list size must be smaller tham matrix size");
+
+		for (const auto &element : inner_list) {
+			mat[i][j++] = element;
+		}
+		i++;
+	}
+}
+
+template <size_m S, typename Type>
+constexpr Matrix<S, S, Type>::Matrix() noexcept : mat{ 0 } { }
+	
+template <size_m S, typename Type> template <size_m U, size_m V>
+constexpr Matrix<S, S, Type>::Matrix(const Type (&arr)[U][V]) noexcept {
+	static_assert(U <= S && V <= S, "Initializer list size must be smaller than matrix size");
+	for (int i = 0; i < U; i++) {
+		for (int j = 0; j < V; j++) {
+			mat[i][j] = arr[i][j];
+		}
+	}
+}
+
+template <size_m S, typename Type>
+constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list<Type> &list) {
+	if (list.size() > S * S)
+		throw std::out_of_range("Initializer list size must be smaller than matrix size");
+
+	int i = 0, j = 0;
+	for (const auto &element : list) {
+		mat[i][j++] = element;
+		if (j >= S) {
+			j = 0;
+			i++;
+		}
+	}
+}
+
+template <size_m S, typename Type>
+constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list< std::initializer_list<Type> > &list) {
+	if (list.size() > S)
+		throw std::out_of_range("Initializer list size must be smaller than matrix size");
+
+	int i = 0, j = 0;
+	for (const auto &inner_list : list) {
+		if (inner_list.size() > S)
+			throw std::out_of_range("Initializer list size must be smaller tham matrix size");
+
+		for (const auto &element : inner_list) {
+			mat[i][j++] = element;
+		}
+		i++;
+	}
 }
 
 template <size_m M, size_m N, typename Type>
