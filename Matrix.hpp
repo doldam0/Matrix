@@ -109,6 +109,9 @@ public:
 	Type& operator()(const int i, const int j) noexcept;
 
 	const Matrix<S, S, Type> T() const noexcept;
+
+	static const Type tr(const Matrix<S, S, Type> &target) noexcept;
+	const Type tr() const noexcept;
 };
 
 template <unsigned int M, unsigned int N, typename Type>
@@ -191,6 +194,20 @@ const Matrix<N, M, Type> Matrix<M, N, Type>::T() const noexcept {
 		}
 	}
 	return result;
+}
+
+template <unsigned int S, typename Type>
+const Type Matrix<S, S, Type>::tr(const Matrix<S, S, Type> &target) noexcept {
+	Type result = 0;
+	for (int i = 0; i < S; i++) {
+		result += target(i, i);
+	}
+	return result;
+}
+
+template <unsigned int S, typename Type>
+const Type Matrix<S, S, Type>::tr() const noexcept {
+	return tr(*this);
 }
 
 #endif
