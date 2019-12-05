@@ -16,4 +16,6 @@ int main() {
 		{ 5, 2 },
 		{ 3, 3 }
 	};
+	cout << Matrix<2, 2, int>::tr(mat3) << endl;
+	return 0;
 }

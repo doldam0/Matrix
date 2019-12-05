@@ -53,7 +53,7 @@ public:
 	}
 
 	const Type operator()(const int i, const int j) const noexcept;
-	const Type& operator()(const int i, const int j) noexcept;
+	Type& operator()(const int i, const int j) noexcept;
 
 	const Matrix<N, M, Type> T() const noexcept;
 };
@@ -120,7 +120,7 @@ const Type Matrix<M, N, Type>::operator()(const int i, const int j) const noexce
 }
 
 template <unsigned int M, unsigned int N, typename Type>
-const Type& Matrix<M, N, Type>::operator()(const int i, const int j) noexcept {
+Type& Matrix<M, N, Type>::operator()(const int i, const int j) noexcept {
 	return mat[i][j];
 }
 
