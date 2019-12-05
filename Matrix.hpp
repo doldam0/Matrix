@@ -17,7 +17,7 @@ public:
 		static_assert(U <= M && V <= N, "Initializer list size must be smaller than matrix size");
 		for (int i = 0; i < U; i++) {
 			for (int j = 0; j < V; j++) {
-				mat[i][j] = arr[i][j];
+				(*this)(i, j) = arr[i][j];
 			}
 		}
 	}
@@ -28,7 +28,7 @@ public:
 
 		int i = 0, j = 0;
 		for (const auto &element : list) {
-			mat[i][j++] = element;
+			(*this)(i, j++) = element;
 			if (j >= N) {
 				j = 0;
 				i++;
@@ -46,7 +46,7 @@ public:
 				throw std::out_of_range("Initializer list size must be smaller tham matrix size");
 
 			for (const auto &element : inner_list) {
-				mat[i][j++] = element;
+				(*this)(i, j++) = element;
 			}
 			i++;
 		}
@@ -54,6 +54,8 @@ public:
 
 	const T operator()(const int i, const int j) const noexcept;
 	const T& operator()(const int i, const int j) noexcept;
+
+	const Matrix<N, M, T> T() const noexcept;
 };
 
 template <unsigned int S, typename T>
@@ -68,7 +70,7 @@ public:
 		static_assert(U <= S && V <= S, "Initializer list size must be smaller than matrix size");
 		for (int i = 0; i < U; i++) {
 			for (int j = 0; j < V; j++) {
-				mat[i][j] = arr[i][j];
+				(*this)(i, j) = arr[i][j];
 			}
 		}
 	}
@@ -79,7 +81,7 @@ public:
 
 		int i = 0, j = 0;
 		for (const auto &element : list) {
-			mat[i][j++] = element;
+			(*this)(i, j++) = element;
 			if (j >= S) {
 				j = 0;
 				i++;
@@ -97,7 +99,7 @@ public:
 				throw std::out_of_range("Initializer list size must be smaller tham matrix size");
 
 			for (const auto &element : inner_list) {
-				mat[i][j++] = element;
+				(*this)(i, j++) = element;
 			}
 			i++;
 		}
@@ -105,6 +107,8 @@ public:
 
 	const T operator()(const int i, const int j) const noexcept;
 	const T& operator()(const int i, const int j) noexcept;
+
+	const Matrix<S, S, T> T() const noexcept;
 };
 
 template <unsigned int M, unsigned int N, typename T>
@@ -173,6 +177,17 @@ const Matrix<M, P, T> operator*(const Matrix<M, N, T> &m1, const Matrix<N, P, T>
 			for (int k = 0; k < N; k++) {
 				result(i, j) += m1(i, k) * m2(k, j);
 			}
+		}
+	}
+	return result;
+}
+
+template <unsigned int M, unsigned int N, typename T>
+cosnt Matrix<N, M, T> Matrix<M, N, T>::T() const noexcept {
+	Matrix<N, M, T> result;
+	for (int i = 0; i < M; i++) {
+		for (int j = 0; j < N; j++) {
+			result(j, i) = (*this)(i, j);
 		}
 	}
 	return result;
