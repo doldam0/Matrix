@@ -45,21 +45,29 @@ public:
 template <size_m M, size_m N, typename Type>
 const Type Matrix<M, N, Type>::operator()(const size_m i, const size_m j) const {
 	if (i >= M || j >= N)
-		throw std::out_of_range("access error");
+		throw std::out_of_range("access error: M is " + std::to_string(M) + 
+			" and N is " + std::to_string(N) + 
+			" but i is " + std::to_string(i) +
+			", j is " + std::to_string(j));
 	return mat[i][j];
 }
 
 template <size_m M, size_m N, typename Type>
 Type& Matrix<M, N, Type>::operator()(const size_m i, const size_m j) {
 	if (i >= M || j >= N)
-		throw std::out_of_range("access error");
+		throw std::out_of_range("access error: M is " + std::to_string(M) + 
+			" and N is " + std::to_string(N) + 
+			" but i is " + std::to_string(i) +
+			", j is " + std::to_string(j));
 	return mat[i][j];
 }
 
 template <size_m S, typename Type>
 const Type Matrix<S, S, Type>::operator()(const size_m i, const size_m j) const {
 	if (i >= S || j >= S)
-		throw std::out_of_range("access error");
+		throw std::out_of_range("access error: S is " + std::to_string(S) + 
+			" but i is " + std::to_string(i) +
+			", j is " + std::to_string(j));
 	return mat[i][j];
 }
 
