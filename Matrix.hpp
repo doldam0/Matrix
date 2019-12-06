@@ -13,7 +13,7 @@ class Matrix {
 
 public:
 	constexpr Matrix() noexcept;	
-	template <size_m U, size_m V> constexpr Matrix(const Type (&arr)[M][N]) noexcept;
+	template <size_m U, size_m V> constexpr Matrix(const Type (&arr)[U][V]) noexcept;
 	constexpr Matrix(const std::initializer_list<Type> &list);
 	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list);
 
@@ -66,7 +66,9 @@ const Type Matrix<S, S, Type>::operator()(const size_m i, const size_m j) const 
 template <size_m S, typename Type>
 Type& Matrix<S, S, Type>::operator()(const size_m i, const size_m j) {
 	if (i >= S || j >= S)
-		throw std::out_of_range("access error");
+		throw std::out_of_range("access error: S is " + std::to_string(S) + 
+			" but i is " + std::to_string(i) +
+			", j is " + std::to_string(j));
 	return mat[i][j];
 }
 
@@ -75,7 +77,8 @@ constexpr Matrix<M, N, Type>::Matrix() noexcept : mat{ 0 } { }
 
 template <size_m M, size_m N, typename Type> 
 template <size_m U, size_m V>
-constexpr Matrix<M, N, Type>::Matrix(const Type (&arr)[M][N]) noexcept {
+constexpr Matrix<M, N, Type>::Matrix(const Type (&arr)[U][V]) noexcept 
+		: Matrix<M, N, Type>() {
 	static_assert(U <= M && V <= N, "Initializer list size must be smaller than matrix size");
 
 	for (int i = 0; i < U; i++) {
@@ -113,7 +116,7 @@ constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list< std::initializ
 		for (const auto &element : inner_list) {
 			(*this)(i, j++) = element;
 		}
-		i++;
+		j = 0; i++;
 	}
 }
 
@@ -122,7 +125,8 @@ constexpr Matrix<S, S, Type>::Matrix() noexcept : mat{ 0 } { }
 	
 template <size_m S, typename Type> 
 template <size_m U, size_m V>
-constexpr Matrix<S, S, Type>::Matrix(const Type (&arr)[U][V]) noexcept {
+constexpr Matrix<S, S, Type>::Matrix(const Type (&arr)[U][V]) noexcept 
+		: Matrix<S, S, Type>() {
 	static_assert(U <= S && V <= S, "Initializer list size must be smaller than matrix size");
 	for (int i = 0; i < U; i++) {
 		for (int j = 0; j < V; j++) {
@@ -159,7 +163,7 @@ constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list< std::initializ
 		for (const auto &element : inner_list) {
 			(*this)(i, j++) = element;
 		}
-		i++;
+		j = 0; i++;
 	}
 }
 

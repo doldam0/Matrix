@@ -10,12 +10,13 @@ int main() {
 		{ 1, 2, 6 },
 		{ 7, 7, 4 }
 	};
-	Matrix<3, 3, int> mat1(arr);
-	Matrix<2, 2, int> mat2 = { 1, 2, 3, 4 };
+	Matrix<4, 4, int> mat1(arr);
+	Matrix<2, 3, int> mat2 = { 1, 2, 3, 4 };
 	Matrix<2, 2, int> mat3 = {
 		{ 5, 2 },
 		{ 3, 3 }
 	};
+	
 	cout << mat3.tr() << endl;
 	return 0;
 }

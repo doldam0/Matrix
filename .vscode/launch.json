@@ -8,12 +8,13 @@
             "name": "(lldb) 시작",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/main",
+            "program": "${workspaceFolder}/${fileBasenameNoExtension}",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "internalConsoleOptions": "openOnSessionStart",
+            "preLaunchTask": "save and compile for C++",
             "externalConsole": false,
             "MIMode": "lldb"
         }
