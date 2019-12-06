@@ -80,7 +80,7 @@ constexpr Matrix<M, N, Type>::Matrix(const Type (&arr)[M][N]) noexcept {
 
 	for (int i = 0; i < U; i++) {
 		for (int j = 0; j < V; j++) {
-			mat[i][j] = arr[i][j];
+			(*this)(i, j) = arr[i][j];
 		}
 	}
 }
@@ -92,7 +92,7 @@ constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list<Type> &list) {
 
 	int i = 0, j = 0;
 	for (const auto &element : list) {
-		mat[i][j++] = element;
+		(*this)(i, j++) = element;
 		if (j >= N) {
 			j = 0;
 			i++;
@@ -111,7 +111,7 @@ constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list< std::initializ
 			throw std::out_of_range("Initializer list size must be smaller tham matrix size");
 
 		for (const auto &element : inner_list) {
-			mat[i][j++] = element;
+			(*this)(i, j++) = element;
 		}
 		i++;
 	}
@@ -126,7 +126,7 @@ constexpr Matrix<S, S, Type>::Matrix(const Type (&arr)[U][V]) noexcept {
 	static_assert(U <= S && V <= S, "Initializer list size must be smaller than matrix size");
 	for (int i = 0; i < U; i++) {
 		for (int j = 0; j < V; j++) {
-			mat[i][j] = arr[i][j];
+			(*this)(i, j) = arr[i][j];
 		}
 	}
 }
@@ -138,7 +138,7 @@ constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list<Type> &list) {
 
 	int i = 0, j = 0;
 	for (const auto &element : list) {
-		mat[i][j++] = element;
+		(*this)(i, j++) = element;
 		if (j >= S) {
 			j = 0;
 			i++;
@@ -157,7 +157,7 @@ constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list< std::initializ
 			throw std::out_of_range("Initializer list size must be smaller tham matrix size");
 
 		for (const auto &element : inner_list) {
-			mat[i][j++] = element;
+			(*this)(i, j++) = element;
 		}
 		i++;
 	}
