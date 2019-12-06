@@ -4,18 +4,27 @@
 #include <initializer_list>
 #include <stdexcept>
 #include <string>
+#include <algorithm>
 
 using size_m = unsigned int;
 
 template <size_m M, size_m N, typename Type = float>
 class Matrix {
-	Type mat[M][N];
+	Type (*mat)[M][N];
 
 public:
-	constexpr Matrix() noexcept;	
+	constexpr Matrix() noexcept;
 	template <size_m U, size_m V> constexpr Matrix(const Type (&arr)[U][V]) noexcept;
 	constexpr Matrix(const std::initializer_list<Type> &list);
 	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list);
+
+	template <size_m U, size_m V> explicit constexpr Matrix(const Matrix<U, V, Type> &target) noexcept;
+	template <size_m U> explicit constexpr Matrix(const Matrix<U, N, Type> &target) noexcept;
+	constexpr Matrix(const Matrix<M, N, Type> &target) noexcept;
+	constexpr Matrix(Matrix<M, N, Type> &&target) noexcept;
+
+	Matrix& operator=(const Matrix<M, N, Type> &target) noexcept;
+	Matrix& operator=(Matrix<M, N, Type> &&target) noexcept;
 
 	const Type operator()(const size_m i, const size_m j) const;
 	Type& operator()(const size_m i, const size_m j);
@@ -25,13 +34,21 @@ public:
 
 template <size_m S, typename Type>
 class Matrix<S, S, Type> {
-	Type mat[S][S];
+	Type (*mat)[S][S];
 
 public:
 	constexpr Matrix() noexcept;
 	template <size_m U, size_m V> constexpr Matrix(const Type (&arr)[U][V]) noexcept;
 	constexpr Matrix(const std::initializer_list<Type> &list);
 	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list);
+	
+	template <size_m U, size_m V> explicit constexpr Matrix(const Matrix<U, V, Type> &target) noexcept;
+	template <size_m U> explicit constexpr Matrix(const Matrix<U, S, Type> &target) noexcept;
+	constexpr Matrix(const Matrix<S, S, Type> &target) noexcept;
+	constexpr Matrix(Matrix<S, S, Type> &&target) noexcept;
+
+	Matrix<S, S, Type>& operator=(const Matrix<S, S, Type> &target) noexcept;
+	Matrix<S, S, Type>& operator=(Matrix<S, S, Type> &&target) noexcept;
 
 	const Type operator()(const size_m i, const size_m j) const;
 	Type& operator()(const size_m i, const size_m j);
@@ -49,7 +66,7 @@ const Type Matrix<M, N, Type>::operator()(const size_m i, const size_m j) const 
 			" and N is " + std::to_string(N) + 
 			" but i is " + std::to_string(i) +
 			", j is " + std::to_string(j));
-	return mat[i][j];
+	return (*mat)[i][j];
 }
 
 template <size_m M, size_m N, typename Type>
@@ -59,7 +76,7 @@ Type& Matrix<M, N, Type>::operator()(const size_m i, const size_m j) {
 			" and N is " + std::to_string(N) + 
 			" but i is " + std::to_string(i) +
 			", j is " + std::to_string(j));
-	return mat[i][j];
+	return (*mat)[i][j];
 }
 
 template <size_m S, typename Type>
@@ -68,7 +85,7 @@ const Type Matrix<S, S, Type>::operator()(const size_m i, const size_m j) const 
 		throw std::out_of_range("access error: S is " + std::to_string(S) + 
 			" but i is " + std::to_string(i) +
 			", j is " + std::to_string(j));
-	return mat[i][j];
+	return (*mat)[i][j];
 }
 
 template <size_m S, typename Type>
@@ -77,16 +94,46 @@ Type& Matrix<S, S, Type>::operator()(const size_m i, const size_m j) {
 		throw std::out_of_range("access error: S is " + std::to_string(S) + 
 			" but i is " + std::to_string(i) +
 			", j is " + std::to_string(j));
-	return mat[i][j];
+	return (*mat)[i][j];
 }
 
 template <size_m M, size_m N, typename Type>
-constexpr Matrix<M, N, Type>::Matrix() noexcept : mat{ 0 } { }
+constexpr Matrix<M, N, Type>::Matrix() noexcept : mat(reinterpret_cast<Type(*)[M][N]>(new Type[M * N])) { }
+
+template <size_m M, size_m N, typename Type>
+template <size_m U, size_m V>
+constexpr Matrix<M, N, Type>::Matrix(const Matrix<U, V, Type> &target) noexcept : Matrix<M, N, Type>() {
+	const size_m min_M = std::min(M, U);
+	const size_m min_N = std::min(N, V);
+
+	for (int i = 0; i < min_M; i++) {
+		for (int j = 0; j < min_N; j++) {
+			(*this)(i, j) = target(i, j);
+		}
+	}
+}
+
+template <size_m M, size_m N, typename Type>
+template <size_m U>
+constexpr Matrix<M, N, Type>::Matrix(const Matrix<U, N, Type> &target) noexcept : Matrix<M, N, Type>() {
+	const size_m min_M = std::min(U, M);
+	std::copy(&target(0, 0), &target(0, 0) + min_M * N, &(*this)(0, 0));
+}
+
+template <size_m M, size_m N, typename Type>
+constexpr Matrix<M, N, Type>::Matrix(const Matrix<M, N, Type> &target) noexcept : Matrix<M, N, Type>() {
+	std::copy(&target(0, 0), &target(0, 0) + M * N, &(*this)(0, 0));
+}
+
+template <size_m M, size_m N, typename Type>
+constexpr Matrix<M, N, Type>::Matrix(Matrix<M, N, Type> &&target) noexcept {
+	mat = target.mat;
+	target.mat = nullptr;
+}
 
 template <size_m M, size_m N, typename Type> 
 template <size_m U, size_m V>
-constexpr Matrix<M, N, Type>::Matrix(const Type (&arr)[U][V]) noexcept 
-		: Matrix<M, N, Type>() {
+constexpr Matrix<M, N, Type>::Matrix(const Type (&arr)[U][V]) noexcept : Matrix<M, N, Type>() {
 	static_assert(U <= M && V <= N, "Initializer list size must be smaller than matrix size");
 
 	for (int i = 0; i < U; i++) {
@@ -97,7 +144,7 @@ constexpr Matrix<M, N, Type>::Matrix(const Type (&arr)[U][V]) noexcept
 }
 
 template <size_m M, size_m N, typename Type>
-constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list<Type> &list) {
+constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list<Type> &list) : Matrix<M, N, Type>() {
 	if (list.size() > M * N)
 		throw std::out_of_range("Initializer list size must be smaller than matrix size");
 
@@ -112,7 +159,7 @@ constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list<Type> &list) {
 }
 
 template <size_m M, size_m N, typename Type>
-constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list< std::initializer_list<Type> > &list) {
+constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list< std::initializer_list<Type> > &list) : Matrix<M, N, Type>() {
 	if (list.size() > M)
 		throw std::out_of_range("Initializer list size must be smaller than matrix size");
 
@@ -129,12 +176,42 @@ constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list< std::initializ
 }
 
 template <size_m S, typename Type>
-constexpr Matrix<S, S, Type>::Matrix() noexcept : mat{ 0 } { }
+constexpr Matrix<S, S, Type>::Matrix() noexcept : mat(reinterpret_cast<Type(*)[S][S]>(new Type[S * S])) { }
+
+template <size_m S, typename Type>
+template <size_m U, size_m V>
+constexpr Matrix<S, S, Type>::Matrix(const Matrix<U, V, Type> &target) noexcept : Matrix<S, S, Type>() {
+	const size_m min_M = std::min(S, U);
+	const size_m min_N = std::min(S, V);
+
+	for (size_m i = 0; i < min_M; i++) {
+		for (size_m j = 0; j < min_N; j++) {
+			(*this)(i, j) = target(i, j);
+		}
+	}
+}
+
+template <size_m S, typename Type>
+template <size_m U>
+constexpr Matrix<S, S, Type>::Matrix(const Matrix<U, S, Type> &target) noexcept : Matrix<S, S, Type>() {
+	const size_m min_M = std::min(U, S);
+	std::copy(&target(0, 0), &target(0, 0) + min_M * S, &(*this)(0, 0));
+}
+
+template <size_m S, typename Type>
+constexpr Matrix<S, S, Type>::Matrix(const Matrix<S, S, Type> &target) noexcept : Matrix<S, S, Type>() {
+	std::copy(&target(0, 0), &target(0, 0) + S * S, &(*this)(0, 0));
+}
+
+template <size_m S, typename Type>
+constexpr Matrix<S, S, Type>::Matrix(Matrix<S, S, Type> &&target) noexcept {
+	mat = target.mat;
+	target.mat = nullptr;
+}
 	
 template <size_m S, typename Type> 
 template <size_m U, size_m V>
-constexpr Matrix<S, S, Type>::Matrix(const Type (&arr)[U][V]) noexcept 
-		: Matrix<S, S, Type>() {
+constexpr Matrix<S, S, Type>::Matrix(const Type (&arr)[U][V]) noexcept : Matrix<S, S, Type>() {
 	static_assert(U <= S && V <= S, "Initializer list size must be smaller than matrix size");
 	for (int i = 0; i < U; i++) {
 		for (int j = 0; j < V; j++) {
@@ -144,7 +221,7 @@ constexpr Matrix<S, S, Type>::Matrix(const Type (&arr)[U][V]) noexcept
 }
 
 template <size_m S, typename Type>
-constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list<Type> &list) {
+constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list<Type> &list) : Matrix<S, S, Type>() {
 	if (list.size() > S * S)
 		throw std::out_of_range("Initializer list size must be smaller than matrix size");
 
@@ -159,7 +236,7 @@ constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list<Type> &list) {
 }
 
 template <size_m S, typename Type>
-constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list< std::initializer_list<Type> > &list) {
+constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list< std::initializer_list<Type> > &list) : Matrix<S, S, Type>() {
 	if (list.size() > S)
 		throw std::out_of_range("Initializer list size must be smaller than matrix size");
 
@@ -173,6 +250,34 @@ constexpr Matrix<S, S, Type>::Matrix(const std::initializer_list< std::initializ
 		}
 		j = 0; i++;
 	}
+}
+
+template <size_m M, size_m N, typename Type>
+Matrix<M, N, Type>& Matrix<M, N, Type>::operator=(const Matrix<M, N, Type> &target) noexcept {
+	std::copy(&target(0, 0), &target(0, 0) + M * N, &(*this)(0, 0));
+	return *this;
+}
+
+template <size_m M, size_m N, typename Type>
+Matrix<M, N, Type>& Matrix<M, N, Type>::operator=(Matrix<M, N, Type> &&target) noexcept {
+	delete []mat;
+	mat = target.mat;
+	target.mat = nullptr;
+	return *this;
+}
+
+template <size_m S, typename Type>
+Matrix<S, S, Type>& Matrix<S, S, Type>::operator=(const Matrix<S, S, Type> &target) noexcept {
+	std::copy(&target(0, 0), &target(0, 0) + S * S, &(*this)(0, 0));
+	return *this;
+}
+
+template <size_m S, typename Type>
+Matrix<S, S, Type>& Matrix<S, S, Type>::operator=(Matrix<S, S, Type> &&target) noexcept {
+	delete []mat;
+	mat = target.mat;
+	target.mat = nullptr;
+	return *this;
 }
 
 template <size_m M, size_m N, typename Type>
