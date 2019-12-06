@@ -18,13 +18,14 @@ public:
 	constexpr Matrix(const std::initializer_list<Type> &list);
 	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list);
 
-	template <size_m U, size_m V> explicit constexpr Matrix(const Matrix<U, V, Type> &target) noexcept;
-	template <size_m U> explicit constexpr Matrix(const Matrix<U, N, Type> &target) noexcept;
 	constexpr Matrix(const Matrix<M, N, Type> &target) noexcept;
 	constexpr Matrix(Matrix<M, N, Type> &&target) noexcept;
 
 	Matrix& operator=(const Matrix<M, N, Type> &target) noexcept;
 	Matrix& operator=(Matrix<M, N, Type> &&target) noexcept;
+
+	template <size_m U, size_m V> explicit operator Matrix<U, V, Type>() noexcept;
+	template <size_m U> explicit operator Matrix<U, N, Type>() noexcept;
 
 	const Type operator()(const size_m i, const size_m j) const;
 	Type& operator()(const size_m i, const size_m j);
@@ -42,13 +43,14 @@ public:
 	constexpr Matrix(const std::initializer_list<Type> &list);
 	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list);
 	
-	template <size_m U, size_m V> explicit constexpr Matrix(const Matrix<U, V, Type> &target) noexcept;
-	template <size_m U> explicit constexpr Matrix(const Matrix<U, S, Type> &target) noexcept;
 	constexpr Matrix(const Matrix<S, S, Type> &target) noexcept;
 	constexpr Matrix(Matrix<S, S, Type> &&target) noexcept;
 
 	Matrix<S, S, Type>& operator=(const Matrix<S, S, Type> &target) noexcept;
 	Matrix<S, S, Type>& operator=(Matrix<S, S, Type> &&target) noexcept;
+
+	template <size_m U, size_m V> explicit operator Matrix<U, V, Type>() noexcept;
+	template <size_m U> explicit operator Matrix<U, S, Type>() noexcept;
 
 	const Type operator()(const size_m i, const size_m j) const;
 	Type& operator()(const size_m i, const size_m j);
@@ -102,22 +104,27 @@ constexpr Matrix<M, N, Type>::Matrix() noexcept : mat(reinterpret_cast<Type(*)[M
 
 template <size_m M, size_m N, typename Type>
 template <size_m U, size_m V>
-constexpr Matrix<M, N, Type>::Matrix(const Matrix<U, V, Type> &target) noexcept : Matrix<M, N, Type>() {
+Matrix<M, N, Type>::operator Matrix<U, V, Type>() noexcept {
+	Matrix<U, V, Type> result;
 	const size_m min_M = std::min(M, U);
 	const size_m min_N = std::min(N, V);
 
 	for (int i = 0; i < min_M; i++) {
 		for (int j = 0; j < min_N; j++) {
-			(*this)(i, j) = target(i, j);
+			result(i, j) = (*this)(i, j);
 		}
 	}
+	return result;
 }
 
 template <size_m M, size_m N, typename Type>
 template <size_m U>
-constexpr Matrix<M, N, Type>::Matrix(const Matrix<U, N, Type> &target) noexcept : Matrix<M, N, Type>() {
+Matrix<M, N, Type>::operator Matrix<U, N, Type>() noexcept {
+	Matrix<U, N, Type> result;
 	const size_m min_M = std::min(U, M);
-	std::copy(&target(0, 0), &target(0, 0) + min_M * N, &(*this)(0, 0));
+
+	std::copy(&(*this)(0, 0), &(*this)(0, 0) + min_M * N, &result(0, 0));
+	return result;
 }
 
 template <size_m M, size_m N, typename Type>
@@ -180,22 +187,27 @@ constexpr Matrix<S, S, Type>::Matrix() noexcept : mat(reinterpret_cast<Type(*)[S
 
 template <size_m S, typename Type>
 template <size_m U, size_m V>
-constexpr Matrix<S, S, Type>::Matrix(const Matrix<U, V, Type> &target) noexcept : Matrix<S, S, Type>() {
+Matrix<S, S, Type>::operator Matrix<U, V, Type>() noexcept {
+	Matrix<U, V, Type> result;
 	const size_m min_M = std::min(S, U);
 	const size_m min_N = std::min(S, V);
 
 	for (size_m i = 0; i < min_M; i++) {
 		for (size_m j = 0; j < min_N; j++) {
-			(*this)(i, j) = target(i, j);
+			result(i, j) = (*this)(i, j);
 		}
 	}
+	return result;
 }
 
 template <size_m S, typename Type>
 template <size_m U>
-constexpr Matrix<S, S, Type>::Matrix(const Matrix<U, S, Type> &target) noexcept : Matrix<S, S, Type>() {
+Matrix<S, S, Type>::operator Matrix<U, S, Type>() noexcept {
+	Matrix<U, S, Type> result;
 	const size_m min_M = std::min(U, S);
-	std::copy(&target(0, 0), &target(0, 0) + min_M * S, &(*this)(0, 0));
+
+	std::copy((*this)(0, 0), (*this)(0, 0) + min_M * S, &result(0, 0));
+	return result;
 }
 
 template <size_m S, typename Type>

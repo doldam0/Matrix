@@ -21,7 +21,7 @@ int main() {
 	cout << mat3.T() << endl;
 	cout << mat3.tr() << endl;
 
-	mat3 = static_cast< Matrix<2, 2, int> >(mat1);
-	cout << mat3 << endl;
+	mat2 = static_cast< Matrix<2, 3, int> >(mat1);
+	cout << mat2 << endl;
 	return 0;
 }
