@@ -261,5 +261,19 @@ const Type Matrix<S, S, Type>::tr() const noexcept {
 	return tr(*this);
 }
 
+template <size_m M, size_m N, typename Type>
+std::ostream& operator<<(std::ostream &stream, const Matrix<M, N, Type> &target) {
+	stream << '[' << '\n';
+	for (int i = 0; i < M; i++) {
+		stream << '\t';
+		for (int j = 0; j < N; j++) {
+			stream << target(i, j) << '\t';
+		} 	
+		stream << '\n';
+	}
+	stream << ']';
+	return stream;	
+}
+
 #endif
 

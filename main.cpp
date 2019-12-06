@@ -17,6 +17,8 @@ int main() {
 		{ 3, 3 }
 	};
 	
+	cout << mat3 << endl;
+	cout << mat3.T() << endl;
 	cout << mat3.tr() << endl;
 	return 0;
 }
