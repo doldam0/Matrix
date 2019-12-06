@@ -17,8 +17,8 @@ public:
 	constexpr Matrix(const std::initializer_list<Type> &list);
 	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list);
 
-	const Type operator()(const size_m i, const size_m j) const noexcept;
-	Type& operator()(const size_m i, const size_m j) noexcept;
+	const Type operator()(const size_m i, const size_m j) const;
+	Type& operator()(const size_m i, const size_m j);
 
 	const Matrix<N, M, Type> T() const noexcept;
 };
@@ -33,8 +33,8 @@ public:
 	constexpr Matrix(const std::initializer_list<Type> &list);
 	constexpr Matrix(const std::initializer_list< std::initializer_list<Type> > &list);
 
-	const Type operator()(const size_m i, const size_m j) const noexcept;
-	Type& operator()(const size_m i, const size_m j) noexcept;
+	const Type operator()(const size_m i, const size_m j) const;
+	Type& operator()(const size_m i, const size_m j);
 
 	const Matrix<S, S, Type> T() const noexcept;
 
@@ -43,21 +43,38 @@ public:
 };
 
 template <size_m M, size_m N, typename Type>
-const Type Matrix<M, N, Type>::operator()(const size_m i, const size_m j) const noexcept {
-	static_assert(i < M && j < N, "access error");
+const Type Matrix<M, N, Type>::operator()(const size_m i, const size_m j) const {
+	if (i >= M || j >= N)
+		throw std::out_of_range("access error");
 	return mat[i][j];
 }
 
 template <size_m M, size_m N, typename Type>
-Type& Matrix<M, N, Type>::operator()(const size_m i, const size_m j) noexcept {
-	static_assert(i < M && j < N, "access error");
+Type& Matrix<M, N, Type>::operator()(const size_m i, const size_m j) {
+	if (i >= M || j >= N)
+		throw std::out_of_range("access error");
+	return mat[i][j];
+}
+
+template <size_m S, typename Type>
+const Type Matrix<S, S, Type>::operator()(const size_m i, const size_m j) const {
+	if (i >= S || j >= S)
+		throw std::out_of_range("access error");
+	return mat[i][j];
+}
+
+template <size_m S, typename Type>
+Type& Matrix<S, S, Type>::operator()(const size_m i, const size_m j) {
+	if (i >= S || j >= S)
+		throw std::out_of_range("access error");
 	return mat[i][j];
 }
 
 template <size_m M, size_m N, typename Type>
 constexpr Matrix<M, N, Type>::Matrix() noexcept : mat{ 0 } { }
 
-template <size_m M, size_m N, typename Type> template <size_m U, size_m V>
+template <size_m M, size_m N, typename Type> 
+template <size_m U, size_m V>
 constexpr Matrix<M, N, Type>::Matrix(const Type (&arr)[M][N]) noexcept {
 	static_assert(U <= M && V <= N, "Initializer list size must be smaller than matrix size");
 
@@ -103,7 +120,8 @@ constexpr Matrix<M, N, Type>::Matrix(const std::initializer_list< std::initializ
 template <size_m S, typename Type>
 constexpr Matrix<S, S, Type>::Matrix() noexcept : mat{ 0 } { }
 	
-template <size_m S, typename Type> template <size_m U, size_m V>
+template <size_m S, typename Type> 
+template <size_m U, size_m V>
 constexpr Matrix<S, S, Type>::Matrix(const Type (&arr)[U][V]) noexcept {
 	static_assert(U <= S && V <= S, "Initializer list size must be smaller than matrix size");
 	for (int i = 0; i < U; i++) {
