@@ -248,6 +248,17 @@ const Matrix<N, M, Type> Matrix<M, N, Type>::T() const noexcept {
 }
 
 template <size_m S, typename Type>
+const Matrix<S, S, Type> Matrix<S, S, Type>::T() const noexcept {
+	Matrix<S, S, Type> result;
+	for (int i = 0; i < S; i++) {
+		for (int j = 0; j < S; j++) {
+			result(j, i) = (*this)(i, j);
+		}
+	}
+	return result;
+}
+
+template <size_m S, typename Type>
 const Type Matrix<S, S, Type>::tr(const Matrix<S, S, Type> &target) noexcept {
 	Type result = 0;
 	for (int i = 0; i < S; i++) {
